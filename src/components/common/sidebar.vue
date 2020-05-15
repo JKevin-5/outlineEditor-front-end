@@ -10,19 +10,23 @@
                     <span class="mr-auto">首页</span>
                     <b-badge>12</b-badge>
                 </b-list-group-item>
-                <b-list-group-item  to="/home/template">
+
+                <b-list-group-item  to="/home/template" v-show="confirmPermission()">
                     <b-icon icon="file-earmark" class="ml-3 mr-4"></b-icon>
                     <span class="mr-auto">模版管理</span>
                 </b-list-group-item>
+
                 <b-list-group-item  to="/home/document">
                     <b-icon icon="file-earmark-text" class="ml-3 mr-4"></b-icon>
                     <span class="mr-auto">文档管理</span>
                 </b-list-group-item>
-                <b-list-group-item  to="/home/course">
+
+                <b-list-group-item  to="/home/course" v-show="confirmPermission()">
                     <b-icon icon="book" class="ml-3 mr-4"></b-icon>
                     <span class="mr-auto">课程管理</span>
                 </b-list-group-item>
-                <b-list-group-item to="/home/user"> 
+
+                <b-list-group-item to="/home/user" v-show="confirmPermission()"> 
                     <b-icon icon="people-fill" class="ml-3 mr-4"></b-icon>
                     <span class="mr-auto">权限管理</span>
                 </b-list-group-item>
@@ -38,6 +42,16 @@ export default {
     },
     computed:{
 
+    },
+    methods:{
+        confirmPermission(){
+            console.log(this.$store.state.user.authority);
+            if(this.$store.state.user.authority==0){
+                return true;
+            }else{
+                return false;
+            }
+        }
     }
 }
 </script>

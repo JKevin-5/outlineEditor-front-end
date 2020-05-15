@@ -9,11 +9,11 @@
     <b-col>
       <b-row cols="12">
         <!-- 侧边导航栏 -->
-        <b-col lg="2">
+        <b-col lg="2" class="ml-5">
             <sidebar/>
         </b-col>
         <!-- 显示界面 -->
-        <b-col lg="9" offset-lg="1">
+        <b-col lg="8" class="ml-5">
             <router-view></router-view>
         </b-col>
     </b-row>

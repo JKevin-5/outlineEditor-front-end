@@ -18,5 +18,5 @@ export const adduser= p => post('/insertUser',p);
 //更改用户密码
 export const changePassword= p => post('/updatePassWord',p);
 
-//更改用户
-export const changeAuthority= p => post('/changeAuthority',p);
+//更改用户信息
+export const changeUserInfo= p => post('/updateUserInfo',p);

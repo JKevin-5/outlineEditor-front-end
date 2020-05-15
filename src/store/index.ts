@@ -7,7 +7,9 @@ export default new Vuex.Store({
   state: {
     isLogin: false,
     tocken:'',
-    user:{}
+    user:{
+      authority:''
+    }
   },
   mutations: {
     //登录成功
@@ -18,7 +20,9 @@ export default new Vuex.Store({
     //注销
     logout(state){
       state.isLogin=false;
-      state.user={}
+      state.user={
+        authority:''
+      }
     }
   },
   actions: {

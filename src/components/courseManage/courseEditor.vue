@@ -4,7 +4,7 @@
         <b-row>
             <!-- 面包屑 -->
             <b-breadcrumb >
-                <b-breadcrumb-item href="/home">课程管理</b-breadcrumb-item>
+                <b-breadcrumb-item to="/home/course">课程管理</b-breadcrumb-item>
                 <b-breadcrumb-item active>新建课程</b-breadcrumb-item>
             </b-breadcrumb>
         </b-row>

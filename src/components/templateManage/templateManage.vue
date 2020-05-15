@@ -21,9 +21,9 @@
           >
           </b-pagination>
       </b-col>
-      <b-col cols="3" offset="3">
+      <b-col cols="4" offset="2">
         <b-form-group
-          label="Filter"
+          label="筛选："
           label-cols-sm="3"
           label-align-sm="right"
           label-for="filterInput"
@@ -37,7 +37,7 @@
               placeholder="Type to Search"
             ></b-form-input>
             <b-input-group-append>
-              <b-button class="ml-3" href="/home/template/tEditor"><b-icon icon="file-earmark-plus" aria-hidden="true"></b-icon></b-button>
+              <b-button class="ml-3" to="/home/template/tEditor"><b-icon icon="file-earmark-plus" aria-hidden="true"></b-icon></b-button>
             </b-input-group-append>
           </b-input-group>
         </b-form-group>
@@ -57,6 +57,7 @@
           :per-page="perPage"
           :current-page="currentPage"
           :filter="filter"
+          :filterIncludedFields="filterOn"
           :fields="fields">
           <template v-slot:cell(操作)="row">
             <b-button size="sm" @click="editTemplate(row.item.id)" class="mr-2">编辑</b-button>
@@ -84,8 +85,10 @@ export default {
         perPage: 8,
         currentPage: 1,
         load:true,
-        fields:[{key:'id',label:'版本编号'},{key:'remark',label:'备注'},{key:'authority',label:'权限'},'操作'],
-        data:[]
+        fields:[{key:'id',label:'版本编号'},{key:'date',label:'时间',sortable: true},{key:'remark',label:'备注'},'操作'],
+        data:[],
+        filterOn: ['remark','authority']
+
       }
     },
     computed:{

@@ -78,7 +78,7 @@ export default{
         if(res.data!=200){
           this.makeToast('success','登录成功！请等待跳转');
           this.getUserInfo(res.data);
-          var c=setTimeout(this.change,3000);
+          var c=setTimeout(this.change,2000);
         }else{
           this.makeToast('danger','账号或密码错误！');
         }

@@ -20,7 +20,9 @@ const uManage = () => import('../components/userManage/userManage.vue')
 
 const setting = () => import('../components/personalSetting/setting.vue') 
 
+const NoPermission = () => import('../components/common/NoPermission.vue')
 
+const main = () => import('../components/home/home.vue')
 
 Vue.use(VueRouter)
 Vue.use(VueAxios,Axios)
@@ -31,7 +33,7 @@ const routes = [
   {
     path: '',
     redirect: '/login',
-    meta: { requireLogin: false, }
+    meta: { requireLogin: false }
   },{
     path: '/home',
     name: 'home',
@@ -39,29 +41,35 @@ const routes = [
     component: home,
     children:[
       {
+        path: '',
+        name:'main',
+        meta:{requireLogin: true},
+        component: main
+      },
+      {
         path: 'template',
         name: 'template',
-        meta: { requireLogin: true },
+        meta: { requireLogin: true,requireAuthority: 0 },
         component: tManage
       },{
         path: 'template/tEditor',
         name: 'tEditor',
-        meta: { requireLogin: true },
+        meta: { requireLogin: true,requireAuthority: 0 },
         component: tEditor
       },{
         path: 'template/tEditor/:templateId',
         name: 'tEditorById',
-        meta: { requireLogin: true },
+        meta: { requireLogin: true,requireAuthority: 0 },
         component: tEditor
       },{
         path: 'course',
         name: 'course',
-        meta: { requireLogin: true },
+        meta: { requireLogin: true,requireAuthority: 0 },
         component: cManage
       },{
         path: 'course/cEditor',
         name: 'cEditor',
-        meta: { requireLogin: true },
+        meta: { requireLogin: true,requireAuthority: 0 },
         component: cEditor
       },{
         path: 'document',
@@ -81,13 +89,18 @@ const routes = [
       },{
         path: 'user',
         name: 'uManage',
-        meta: { requireLogin: true },
+        meta: { requireLogin: true,requireAuthority: 0 },
         component: uManage
       },{
         path: 'setting',
         name: 'setting',
         meta: { requireLogin: true },
         component: setting
+      },{
+        path: 'NoPermission',
+        name: 'NoPermission',
+        meta: { requireLogin: true },
+        component: NoPermission
       }
     ]
   },{
@@ -107,8 +120,16 @@ const router = new VueRouter({
 //全局路由守卫
 router.beforeEach((to, from, next) => {
   if (to.meta.requireLogin) {//检查是否需要登录
-    if(store.state.isLogin){
-       next()
+    if(store.state.isLogin){//检测是否登录
+      if(to.meta.requireAuthority!=null){//检测是否需要权限查看
+        if(to.meta.requireAuthority==store.state.user.authority){
+          next()
+        }else{
+          next({name: 'NoPermission'})
+        }
+      }else{
+        next()
+      }
     }else{
       next({name: 'login'})
     }

@@ -51,6 +51,9 @@ export const deleteTemplate=(id) => deletes('/deleteTemplate/'+id);
 //获取指定id模板信息
 export const getTemplateById=(id) => get('/getTemplate/'+id);
 
+//获取最新模板信息
+export const getLastTemplate=(date) => get('/getLastTemplate/'+date);
+
 //保存模板，p：参数
 export const saveTemplateById= p => post('/updateTemplate',p);
 

@@ -5,17 +5,18 @@
         <b-row>
             <b-col>
                 <b-button-group style="display: flex; position: fixed;z-index: 1071;">
-                    <b-dropdown left :text=font>
-                        <b-dropdown-item @click="changeFontFamily('SimSun')">宋体</b-dropdown-item>
-                        <b-dropdown-item>微软雅黑</b-dropdown-item>
-                    </b-dropdown>
                     <b-dropdown left text="添加文本">
-                        <b-dropdown-item @click="addParagraph('subhead')"><span style="font-size: 24px">二级标题</span></b-dropdown-item>
-                        <b-dropdown-item @click="addParagraph('thirdhead')"><span style="font-size: 20px">三级标题</span></b-dropdown-item>
                         <b-dropdown-item @click="addParagraph('paragraph')">段落</b-dropdown-item>
                         <b-dropdown-divider></b-dropdown-divider>
-                        <b-dropdown-item @click="addTable1">表格</b-dropdown-item>
-                        <b-dropdown-item @click="addCourseInfo">课程信息表</b-dropdown-item>
+                        <b-dropdown-group id="dropdown-group-1" header="标题">
+                            <b-dropdown-item @click="addParagraph('title')"><span style="font-size: 24px">一级标题</span></b-dropdown-item>
+                            <b-dropdown-item @click="addParagraph('subhead')"><span style="font-size: 22px">二级标题</span></b-dropdown-item>
+                            <b-dropdown-item @click="addParagraph('thirdhead')"><span style="font-size: 20px">三级标题</span></b-dropdown-item>
+                        </b-dropdown-group>
+                        <b-dropdown-group id="dropdown-group-2" header="组件">
+                            <b-dropdown-item @click="addTable1">表格</b-dropdown-item>
+                            <b-dropdown-item @click="addCourseInfo">课程信息表</b-dropdown-item>
+                        </b-dropdown-group>
                     </b-dropdown>
                     <b-dropdown text="保存" split  ref="dropdown"  @click="save">
                         <b-dropdown-form>
@@ -35,19 +36,22 @@
                                 ></b-form-input>
                             </b-form-group>
                             <b-button variant="primary" size="sm" @click="hideDropdown">确认</b-button>
-                            <b-form-group label="模板版本编号" label-for="dropdown-form-tId" class="mt-3" description="默认为最新模板">
+                            <!-- <b-form-group label="模板版本编号" label-for="dropdown-form-tId" class="mt-3" description="默认为最新模板">
                                 <b-form-input
                                     id="dropdown-form-tId"
                                     size="sm"
                                     style="width:200px"
                                     v-model="t_id"
                                 ></b-form-input>
-                            </b-form-group>
-                            <b-button variant="primary" size="sm" @click="getTemplate();hideDropdown()" >导入</b-button>
+                            </b-form-group> -->
+                            <b-button variant="primary" size="sm" @click="getTemplate();hideDropdown()" class="ml-3">导入最新模板</b-button>
                         </b-dropdown-form>
                     </b-dropdown>
                     <b-button @click="download()">下载</b-button>
                 </b-button-group>
+            </b-col>
+            <b-col>
+                <label class="middle">最近一次保存时间为：{{date}}</label>
             </b-col>
         </b-row>
         <!-- 编辑区域 -->
@@ -92,15 +96,18 @@
                         </b-input-group>
 
                         <!-- 固定课程信息查询 -->
-                        <b-input-group prepend="课程查询" v-if="item.type=='fixedTable'" v-show="item.content==null" class="pt-4">
-                            <b-form-input :list="'my-list'+index"></b-form-input>
+                        <b-input-group prepend="课程查询" v-if="item.type=='fixedTable'&& Object.keys(item.content).length==0"  class="pt-4">
+                            <b-form-input list="courseList" v-model="courseName"></b-form-input>
+                            <datalist id="courseList">
+                                <option v-for="course in courseList" :key="course">{{ course }}</option>
+                            </datalist>
                             <b-input-group-append>
-                                <b-button variant="info" @click="confirmCourse(index)">确定</b-button>
+                                <b-button  @click="confirmCourse(index)">确定</b-button>
                             </b-input-group-append>
                         </b-input-group>
 
                         <!-- 固定表格填充 -->
-                        <b-table-simple class="mt-3" v-if="item.type=='fixedTable'&&item.content!=null" hover small caption-top responsive bordered>
+                        <b-table-simple class="mt-3" v-if="item.type=='fixedTable'&& Object.keys(item.content).length!=0" hover small caption-top responsive bordered>
                             <b-tbody>
                                 <b-tr style="text-align: center;">
                                     <b-th class="text-center " >课程编号</b-th>
@@ -122,7 +129,9 @@
                                 </b-tr>
                                 <b-tr>
                                     <b-th class="text-center">课程类别</b-th>
-                                    <b-td><b-input class="fixcol" v-model="item.content.obligatory"></b-input></b-td>
+                                    <b-td class="text-center">
+                                        <b-form-checkbox class="pt-2" v-model="item.content.obligatory" value="■必修   □选修" unchecked-value="□必修   ■选修">必修</b-form-checkbox>
+                                    </b-td>
                                     <b-th class="text-center">适用专业</b-th>
                                     <b-td><b-input class="fixcol" v-model="item.content.discipline"></b-input></b-td>
                                 </b-tr>
@@ -194,10 +203,10 @@
                     </b-col>
                     
                     <!-- 段落操作栏 -->
-                    <b-col cols="2" align-self="center" v-if="item.type!='title'"> 
+                    <b-col cols="2" align-self="center" > 
                         <b-button-group>
                             <b-button  variant="outline-danger" @click="deleteParagraph(index)">删除</b-button>
-                            <b-button  variant="outline-secondary" class="">在下方添加</b-button>
+                            
                         </b-button-group>
                     </b-col>
 
@@ -208,14 +217,18 @@
 </template>
 <script>
 import {getDocumentById, newDocument,saveDocumentById,autoId} from '@/network/documentApi'
-import {nowTime,getTemplateById} from '@/network/templateApi'
+import {nowTime,getTemplateById,getLastTemplate} from '@/network/templateApi'
+import {getCourses,getCourseByName} from '@/network/courseApi'
 import axios, * as others from 'axios';
 export default {
     data(){
         return{
+            date:'',
             name:'',
             t_id: '',
             font:'SimHei',
+            courseName:'',
+            courseList:['Java','C++'],
             options:[
                 {
                     value: 'subhead',
@@ -244,6 +257,14 @@ export default {
                 console.log(err);
             })
         }
+        //课程名称列表
+        getCourses().then(res=>{
+            //console.log(res.data);
+            this.courseList=res.data;
+        }).catch(err=>{
+            console.log(err);
+        })
+
     },
     methods:{
         //创建段落
@@ -252,7 +273,7 @@ export default {
         },
         //创建课程信息表
         addCourseInfo:function(){
-            this.data.push({type: 'fixedTable',content:{data:[]}});
+            this.data.push({type: 'fixedTable',content:{}});
         },
         //创建表格
         addTable1:function(){
@@ -264,10 +285,14 @@ export default {
         },
         //选定课程
         confirmCourse:function(index){
-            this.data[index].content.data.push(
-                            ["课程编号","0BH04227","学    分","3"],
-                            ["总 学 时","48","实验/上机学时","实验：16学时"],
-                            ["课程名称","Java Web技术","英文名称","The Technologies of Java Web"]);
+            getCourseByName(this.courseName).then(res=>{
+                //console.log(res.data);
+                this.data[index].content=res.data;
+                this.courseName=''
+            }).catch(err=>{
+                console.log(err);
+            })
+
         },
         //新建表格
         addTable:function(index){
@@ -299,10 +324,6 @@ export default {
             };    
             this.data[index].content.data.splice(row,0,rows);
         },
-        //字体按钮变化
-        changeFontFamily:function(font){
-            this.font=font;
-        },
         //下载文件
         download(){
             this.content.data = this.data;
@@ -318,13 +339,14 @@ export default {
              if(!response.data){
                 return
             } 
+            //console.log(response.data);
             let data = response.data;
             let blob = new Blob([data],{type: 'application/ms-word'});
             let objectUrl = URL.createObjectURL(blob);
             let link = document.createElement("a"); 
 
             link.href = objectUrl
-            link.setAttribute('download', ''+this.name)
+            link.setAttribute('download', ''+this.name+'.docx')
 
             document.body.appendChild(link)
             link.click()
@@ -350,6 +372,7 @@ export default {
                     id: this.$route.params.documentId,
                     date: nowTime(),
                     name: this.name,
+                    userName: this.$store.state.user.name,
                     t_id: this.t_id,
                     content: JSON.stringify(this.content)
                 }).then(res=>{
@@ -364,6 +387,7 @@ export default {
                 newDocument({
                     date: nowTime(),
                     name: this.nowTime,
+                    userName: this.$store.state.user.name,
                     t_id: this.t_id,
                     content: JSON.stringify(this.content) 
                 }).then(res=>{
@@ -389,16 +413,20 @@ export default {
         },
         //导入模板
         getTemplate(){
-            getTemplateById(this.t_id).then(res=>{
+            getLastTemplate(nowTime()).then(res=>{
                 this.data= res.data.content.data;
+                this.t_id= res.data.id;
+                //console.log(res.data);
                 this.makeToast('success','导入成功！');
+                //console.log(nowTime());
             }).catch(err=>{
                 console.log(err);
-                if(err.response.status==500){
-                    this.makeToast('danger','模板不存在。\n导入失败！');
+                if(err.response.status&&err.response.status==500){
+                    this.makeToast('danger','无此模板，导入失败！');
                 }else{
                     this.makeToast('danger','导入失败！');
                 }
+                
                 
             })   
         }

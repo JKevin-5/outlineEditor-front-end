@@ -11,7 +11,7 @@
     <!-- 新建按钮 -->
     <b-row>
       <b-col offset="8" >
-        <b-button class="m-3" href="/home/course/cEditor"><b-icon icon="file-earmark-plus" aria-hidden="true"></b-icon></b-button>
+        <b-button class="m-3" to="/home/course/cEditor"><b-icon icon="file-earmark-plus" aria-hidden="true"></b-icon></b-button>
       </b-col>
     </b-row>
     <!-- 模板列表 -->

@@ -5,10 +5,6 @@
         <b-row >
             <b-col>
                 <b-button-group style="display: flex; position: fixed;z-index: 1071;">
-                    <b-dropdown left :text=font>
-                    <b-dropdown-item @click="changeFontFamily('SimSun')">宋体</b-dropdown-item>
-                    <b-dropdown-item>微软雅黑</b-dropdown-item>
-                    </b-dropdown>
                     <b-dropdown left text="添加文本">
                         <b-dropdown-item @click="addParagraph('paragraph')">段落</b-dropdown-item>
                         <b-dropdown-divider></b-dropdown-divider>
@@ -97,15 +93,18 @@
                         </b-input-group>
 
                         <!-- 固定课程信息查询 -->
-                        <b-input-group prepend="课程查询" v-if="item.type=='fixedTable'" v-show="item.content==null" class="mt-4">
-                            <b-form-input :list="'my-list'+index"></b-form-input>
+                        <b-input-group prepend="课程查询" v-if="item.type=='fixedTable'&& Object.keys(item.content).length==0" class="mt-4">
+                            <b-form-input list="courseList" v-model="courseName"></b-form-input>
+                            <datalist id="courseList">
+                                <option v-for="course in courseList" :key="course">{{ course }}</option>
+                            </datalist>
                             <b-input-group-append>
-                                <b-button variant="info" @click="confirmCourse(index)">确定</b-button>
+                                <b-button  @click="confirmCourse(index)">确定</b-button>
                             </b-input-group-append>
                         </b-input-group>
 
                         <!-- 固定表格填充 -->
-                        <b-table-simple class="mt-3" v-if="item.type=='fixedTable'&&item.content!=null" hover small caption-top responsive bordered>
+                        <b-table-simple class="mt-3" v-if="item.type=='fixedTable'&& Object.keys(item.content).length!=0" hover small caption-top responsive bordered>
                             <b-tbody>
                                 <b-tr style="text-align: center;">
                                     <b-th class="text-center " >课程编号</b-th>
@@ -127,7 +126,9 @@
                                 </b-tr>
                                 <b-tr>
                                     <b-th class="text-center">课程类别</b-th>
-                                    <b-td><b-input class="fixcol" v-model="item.content.obligatory"></b-input></b-td>
+                                    <b-td class="fixcol">
+                                        <b-form-checkbox class="pt-2" v-model="item.content.obligatory" value="■必修   □选修" unchecked-value="□必修   ■选修">必修</b-form-checkbox>
+                                    </b-td>
                                     <b-th class="text-center">适用专业</b-th>
                                     <b-td><b-input class="fixcol" v-model="item.content.discipline"></b-input></b-td>
                                 </b-tr>
@@ -209,7 +210,8 @@
     </div>
 </template>
 <script>
-import { getTemplateById, nowTime,saveTemplateById,downloadTemplate,newTemplate,autoId} from "@/network/templateApi";
+import { getTemplateById, nowTime,saveTemplateById,downloadTemplate,newTemplate,autoId} from "@/network/templateApi"
+import { getCourses,getCourseByName } from "@/network/courseApi"
 import axios, * as others from 'axios';
 export default {
     
@@ -218,6 +220,8 @@ export default {
             count:0,
             date:'',
             font:'SimHei',
+            courseName:'',
+            courseList:['Java Web技术','C++'],
             options:[
                 {
                     value: 'subhead',
@@ -252,6 +256,7 @@ export default {
                 console.log(err);
             })
         }
+
     },
     mounted:function(){
         window.onbeforeunload = e => {      //刷新时弹出提示
@@ -281,7 +286,7 @@ export default {
         },
         //创建课程信息表
         addCourseInfo:function(){
-            this.data.push({type: 'fixedTable',content:{data:[]}});
+            this.data.push({type: 'fixedTable',content:{}});
         },
         //创建表格
         addTable1:function(){
@@ -291,9 +296,16 @@ export default {
         deleteParagraph: function(index){
              this.data.splice(index,1);
         },
-        //选定课程
+         //选定课程
         confirmCourse:function(index){
-            this.data[index].content.data={course_id:'Java',credit:3,period:48,practice_hour:'实验：16学时'};
+            getCourseByName(this.courseName).then(res=>{
+                //console.log(res.data);
+                this.data[index].content=res.data;
+                this.courseName=''
+            }).catch(err=>{
+                console.log(err);
+            })
+
         },
         //新建表格
         addTable:function(index){
@@ -383,7 +395,7 @@ export default {
             
         },
         autoSave(){
-            var myVar=setInterval(this.save(),3000);//每三分钟自动保存一次
+            var myVar=setInterval(this.save(),30000);//每三分钟自动保存一次
         },
         stopSave(){
             clearInterval(myVar);
@@ -409,7 +421,7 @@ export default {
             let link = document.createElement("a"); 
 
             link.href = objectUrl
-            link.setAttribute('download', ''+this.remark)
+            link.setAttribute('download', ''+this.remark+'.docx')
 
             document.body.appendChild(link)
             link.click()

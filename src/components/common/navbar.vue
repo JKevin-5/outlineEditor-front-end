@@ -14,7 +14,7 @@
         </b-nav-form>
 
 
-        <b-nav-item-dropdown right>
+        <b-nav-item-dropdown right class="pr-5">
           <!-- Using 'button-content' slot -->
           <template v-slot:button-content>
             {{name}}
