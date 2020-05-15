@@ -1,5 +1,7 @@
 # outline
 
+介绍：课程大纲编辑管理系统的前端部分，整体前端框架为vue，ui框架为bootstrap-vue
+
 ## Project setup
 ```
 npm install
